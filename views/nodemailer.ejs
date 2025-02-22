@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Sender</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="navbar-container">
+        <nav class="navbar">
+            <ul>
+                <li><a href="/home">Home</a></li>
+                <li><a href="/qr">QR-code</a></li>
+                <li><a href="/nodemailer">Nodemailer</a></li>
+                <li><a href="/bmi">BMI</a></li>
+                <li><a href="/weather">Weather API</a></li>
+                <li><a href="/blog">CRUD</a></li>
+            </ul>
+        </nav>
+        <a href="/" class="logout-button">Log Out</a>
+    </div>
+    <div class="container">
+        <h1>Send an Email</h1>
+        <form id="emailForm">
+            <label for="to">To:</label>
+            <input type="email" id="to" name="to" required><br><br>
+            
+            <label for="subject">Subject:</label>
+            <input type="text" id="subject" name="subject" required><br><br>
+            
+            <label for="message">Message:</label><br>
+            <textarea id="message" name="message" rows="4" required></textarea><br><br>
+            
+            <button type="submit" class="submit-btn">Send Email</button>
+        </form>
+    </div>
+    <script>
+        document.getElementById('emailForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const to = document.getElementById('to').value;
+            const subject = document.getElementById('subject').value;
+            const message = document.getElementById('message').value;
+            
+            try {
+                const response = await fetch('http://localhost:3000/send-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ to, subject, message })
+                });
+                
+                const result = await response.json();
+                alert(result.message);
+            } catch (error) {
+                alert('Failed to send email. Please try again.');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather, Map, Facts & Images</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+</head>
+<body>
+    <div class="navbar-container">
+        <nav class="navbar">
+            <ul>
+                <li><a href="/home">Home</a></li>
+                <li><a href="/qr">QR-code</a></li>
+                <li><a href="/nodemailer">Nodemailer</a></li>
+                <li><a href="/bmi">BMI</a></li>
+                <li><a href="/weather">Weather API</a></li>
+                <li><a href="/blog">CRUD</a></li>
+            </ul>
+        </nav>
+        <a href="/" class="logout-button">Log Out</a>
+    </div>
+    <div class="container">
+        <h1>API APPs</h1>
+
+        <div class="form-container">
+            <input type="text" id="cityWeather" placeholder="Enter city for weather">
+            <button id="getWeather" class="submit-btn">Get Weather</button>
+        </div>
+        
+        <div id="weatherResult" class="result-container"></div>
+        
+        <div class="form-container">
+            <input type="text" id="cityMap" placeholder="Enter location for map">
+            <button id="getMap" class="submit-btn">Get Map</button>
+        </div>
+
+        <div id="mapResult" class="result-container" style="height: 300px;"></div>
+        
+        <div class="form-container">
+            <button id="getFact" class="submit-btn">Get Random Fact</button>
+        </div>
+        
+        <div id="factResult" class="result-container"></div>
+
+        <div class="form-container">
+            <button id="getImage" class="submit-btn">Get Random Image</button>
+        </div>
+        
+        <div id="imageResult" class="result-container"></div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        document.getElementById('getWeather').addEventListener('click', async () => {
+            const city = document.getElementById('cityWeather').value || 'London';
+            try {
+                const response = await fetch(`/api/weather?city=${city}`);
+                const data = await response.json();
+
+                if (data.error) {
+                    document.getElementById('weatherResult').innerHTML = `<p>Error: ${data.error}</p>`;
+                    return;
+                }
+
+                document.getElementById('weatherResult').innerHTML = `
+                    <h2>Weather in ${city}</h2>
+                    <p>Temperature: ${data.temperature}°C</p>
+                    <p>Description: ${data.description}</p>
+                    <img src="http://openweathermap.org/img/w/${data.icon}.png" alt="Weather Icon">
+                    <p>Humidity: ${data.humidity} %</p>
+                    <p>Wind speed: ${data.wind_speed} m/s</p>
+                    <p>Pressure: ${data.pressure} hPa</p>
+                    <p>Air Quality Index (AQI): ${data.aqi}</p>
+                    <p>Country: ${data.country_code} 
+                        <img src="${data.country_flag}" alt="Flag" style="width: 50px; height: auto; border: 1px solid #000;">
+                    </p>
+                    <p>Coordinates: (${data.coordinates.lat},${data.coordinates.lon})</p>
+                `;
+            } catch (err) {
+                document.getElementById('weatherResult').innerHTML = `<p>Error fetching weather data</p>`;
+            }
+        });
+
+        document.getElementById('getMap').addEventListener('click', async () => {
+            const location = document.getElementById('cityMap').value || 'Paris';
+            try {
+                const response = await fetch(`/api/map?location=${location}`);
+                const data = await response.json();
+
+                console.log("Received map data:", data);
+
+                if (data.error) {
+                    document.getElementById('mapResult').innerHTML = `<p>Error: ${data.error}</p>`;
+                    return;
+                }
+
+                document.getElementById('mapResult').innerHTML = `<h2>Location: ${location}</h2><div id="map" style="height: 300px;"></div>`;
+
+                const map = L.map('map').setView([data.lat, data.lon], 13);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; OpenStreetMap contributors'
+                }).addTo(map);
+                L.marker([data.lat, data.lon]).addTo(map)
+                    .bindPopup(`<b>${location}</b><br>(${data.lat}, ${data.lon})`)
+                    .openPopup();
+            } catch (err) {
+                document.getElementById('mapResult').innerHTML = `<p>Error fetching map data</p>`;
+            }
+        });
+
+        document.getElementById('getFact').addEventListener('click', async () => {
+            const response = await fetch('/api/fact');
+            const data = await response.json();
+            document.getElementById('factResult').innerHTML = `<p>${data.fact}</p>`;
+        });
+
+        document.getElementById('getImage').addEventListener('click', async () => {
+            const response = await fetch('/api/image');
+            const data = await response.json();
+            document.getElementById('imageResult').innerHTML = `<img src="${data.image}" alt="Random Image" style="width:100%;">`;
+        });
+
+    </script>
+</body>
+</html>
