@@ -12,7 +12,7 @@ const qr = require('qrcode');
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 1212;
+const port = process.env.PORT || 3000;
 
 mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/myApp')
 .then(() => console.log('✅ Connected to MongoDB'))
