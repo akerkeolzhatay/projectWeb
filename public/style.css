@@ -189,3 +189,6 @@ button:hover {
     color: #444;
 }
 
+#mapResult {
+    margin-bottom: 100px; 
+}
